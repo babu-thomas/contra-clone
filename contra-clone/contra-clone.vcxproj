@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\background.png" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{524B83DA-FBB4-487D-9EFC-8B2E98AF3864}</ProjectGuid>
