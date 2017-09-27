@@ -7,10 +7,12 @@
 struct Sprite
 {
 	SDL_Texture *sheet;
-	int x, y;
+	float x, y;
+	float dy;
 	int frame_width, frame_height;
 	int current_frame;
 	bool is_moving;
+	bool in_air;
 	SDL_RendererFlip flip;
 };
 
@@ -39,7 +41,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	Sprite hero = { hero_texture, 60, 60, 40, 50, 5, false, SDL_FLIP_NONE };
+	Sprite hero = { hero_texture, 60.0, 60.0, 0.0, 40, 50, 5, false, false, SDL_FLIP_NONE };
 
 	bool quit = false;
 	while (!quit)
@@ -94,6 +96,28 @@ int main(int argc, char **argv)
 			hero.current_frame = 4;
 		}
 
+		if (jump_pressed && !hero.in_air)
+		{
+			hero.dy = -8;
+			hero.in_air = true;
+		}
+		if (hero.in_air)
+		{
+			hero.y += hero.dy;
+			if (hero.y <= 0)
+			{
+				hero.y = 0;
+				hero.dy = 0;
+			}
+			hero.dy += 0.5;
+			if (hero.y >= 60)
+			{
+				hero.y = 60;
+				hero.dy = 0;
+				hero.in_air = false;
+			}
+		}
+
 		// Render
 		SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 		SDL_RenderClear(renderer);
@@ -103,7 +127,7 @@ int main(int argc, char **argv)
 		SDL_Rect src_hero = { hero.frame_width*hero.current_frame, 0, hero.frame_width,
 			hero.frame_height };
 
-		SDL_Rect dest_hero = { hero.x, hero.y, hero.frame_width, hero.frame_height };
+		SDL_Rect dest_hero = { (int)hero.x, (int)hero.y, hero.frame_width, hero.frame_height };
 
 		SDL_RenderCopyEx(renderer, hero.sheet, &src_hero, &dest_hero, 0, NULL, hero.flip);
 		SDL_RenderPresent(renderer);
