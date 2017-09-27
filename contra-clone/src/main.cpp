@@ -10,6 +10,8 @@ struct Sprite
 	int x, y;
 	int frame_width, frame_height;
 	int current_frame;
+	bool is_moving;
+	SDL_RendererFlip flip;
 };
 
 SDL_Texture* tex_from_image(const std::string& path, SDL_Renderer *renderer);
@@ -37,7 +39,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	Sprite hero = { hero_texture, 60, 60, 40, 50, 5 };
+	Sprite hero = { hero_texture, 60, 60, 40, 50, 5, false, SDL_FLIP_NONE };
 
 	bool quit = false;
 	while (!quit)
@@ -53,6 +55,21 @@ int main(int argc, char **argv)
 				break;
 			}
 		}
+		const Uint8 *keyboard_state = SDL_GetKeyboardState(NULL);
+
+		//Update world
+		bool left_pressed = keyboard_state[SDL_SCANCODE_LEFT];
+		bool right_pressed = keyboard_state[SDL_SCANCODE_RIGHT];
+		bool jump_pressed = keyboard_state[SDL_SCANCODE_UP];
+
+		if (left_pressed)
+		{
+			hero.flip = SDL_FLIP_HORIZONTAL;
+		}
+		else if (right_pressed)
+		{
+			hero.flip = SDL_FLIP_NONE;
+		}
 
 		// Render
 		SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
@@ -65,7 +82,7 @@ int main(int argc, char **argv)
 
 		SDL_Rect dest_hero = { hero.x, hero.y, hero.frame_width, hero.frame_height };
 
-		SDL_RenderCopy(renderer, hero.sheet, &src_hero, &dest_hero);
+		SDL_RenderCopyEx(renderer, hero.sheet, &src_hero, &dest_hero, 0, NULL, hero.flip);
 		SDL_RenderPresent(renderer);
 		SDL_Delay(10);
 	}
