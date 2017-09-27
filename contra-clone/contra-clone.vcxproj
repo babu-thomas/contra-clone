@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\background.png" />
+    <Image Include="data\hero_sheet.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

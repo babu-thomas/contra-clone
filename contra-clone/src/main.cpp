@@ -1,7 +1,10 @@
 #include <iostream>
+#include <string>
 
 #include <SDL.h>
 #include <SDL_image.h>
+
+SDL_Texture* tex_from_image(const std::string& path, SDL_Renderer *renderer);
 
 int main(int argc, char **argv)
 {
@@ -12,15 +15,19 @@ int main(int argc, char **argv)
 	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_RenderSetLogicalSize(renderer, 320, 240);
 
-	SDL_Surface *bg = IMG_Load("data/background.png");
-	if (!bg)
+	std::string bg_path = "data/background.png";
+	SDL_Texture *bg_texture = tex_from_image(bg_path, renderer);
+	if (!bg_texture)
 	{
-		std::cout << "Cannot load background!";
 		return 1;
 	}
 
-	SDL_Texture *bg_texture = SDL_CreateTextureFromSurface(renderer, bg);
-	SDL_FreeSurface(bg);
+	std::string hero_path = "data/hero_sheet.png";
+	SDL_Texture *hero_texture = tex_from_image(hero_path, renderer);
+	if (!hero_texture)
+	{
+		return 1;
+	}
 
 	bool quit = false;
 	while (!quit)
@@ -41,13 +48,30 @@ int main(int argc, char **argv)
 		SDL_RenderClear(renderer);
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderCopy(renderer, bg_texture, NULL, NULL);
+		SDL_RenderCopy(renderer, hero_texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
 	}
 
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyTexture(bg_texture);
+	SDL_DestroyTexture(hero_texture);
 	SDL_Quit();
 
 	return 0;
+}
+
+SDL_Texture* tex_from_image(const std::string& path, SDL_Renderer *renderer)
+{
+	SDL_Surface *surface = IMG_Load(path.c_str());
+	if (!surface)
+	{
+		std::cout << "Cannot load texture from: " << path;
+		return NULL;
+	}
+
+	SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_FreeSurface(surface);
+
+	return tex;
 }
