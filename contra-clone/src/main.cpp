@@ -4,6 +4,14 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
+struct Sprite
+{
+	SDL_Texture *sheet;
+	int x, y;
+	int frame_width, frame_height;
+	int current_frame;
+};
+
 SDL_Texture* tex_from_image(const std::string& path, SDL_Renderer *renderer);
 
 int main(int argc, char **argv)
@@ -29,6 +37,8 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	Sprite hero = { hero_texture, 60, 60, 40, 50, 5 };
+
 	bool quit = false;
 	while (!quit)
 	{
@@ -40,6 +50,7 @@ int main(int argc, char **argv)
 			{
 			case SDL_QUIT:
 				quit = true;
+				break;
 			}
 		}
 
@@ -48,7 +59,13 @@ int main(int argc, char **argv)
 		SDL_RenderClear(renderer);
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderCopy(renderer, bg_texture, NULL, NULL);
-		SDL_RenderCopy(renderer, hero_texture, NULL, NULL);
+
+		SDL_Rect src_hero = { hero.frame_width*hero.current_frame, 0, hero.frame_width,
+			hero.frame_height };
+
+		SDL_Rect dest_hero = { hero.x, hero.y, hero.frame_width, hero.frame_height };
+
+		SDL_RenderCopy(renderer, hero.sheet, &src_hero, &dest_hero);
 		SDL_RenderPresent(renderer);
 		SDL_Delay(10);
 	}
