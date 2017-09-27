@@ -50,6 +50,7 @@ int main(int argc, char **argv)
 		SDL_RenderCopy(renderer, bg_texture, NULL, NULL);
 		SDL_RenderCopy(renderer, hero_texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
+		SDL_Delay(10);
 	}
 
 	SDL_DestroyWindow(window);
