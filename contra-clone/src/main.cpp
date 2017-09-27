@@ -65,10 +65,33 @@ int main(int argc, char **argv)
 		if (left_pressed)
 		{
 			hero.flip = SDL_FLIP_HORIZONTAL;
+			hero.x -= 3;
+			hero.is_moving = true;
+
+			unsigned int time_ms = SDL_GetTicks();
+			if (time_ms % 6 == 0)
+			{
+				hero.current_frame++;
+				hero.current_frame %= 4;
+			}
 		}
 		else if (right_pressed)
 		{
 			hero.flip = SDL_FLIP_NONE;
+			hero.x += 3;
+			hero.is_moving = true;
+
+			unsigned int time_ms = SDL_GetTicks();
+			if (time_ms % 6 == 0)
+			{
+				hero.current_frame++;
+				hero.current_frame %= 4;
+			}
+		}
+		else
+		{
+			hero.is_moving = false;
+			hero.current_frame = 4;
 		}
 
 		// Render
