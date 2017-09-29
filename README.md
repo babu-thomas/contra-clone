@@ -1,6 +1,6 @@
 # Contra Clone [![Build status](https://ci.appveyor.com/api/projects/status/y1c0ft42776q1915?svg=true)](https://ci.appveyor.com/project/babu-thomas/contra-clone)
 
-![game-gif](https://i.imgur.com/U08r6uf.gif)
+![game-gif](https://i.imgur.com/trSx4zb.gif)
 
 A 2D sidescrolling shooter made as a learning project.
 
