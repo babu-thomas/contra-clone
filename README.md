@@ -14,7 +14,7 @@ Build with Visual Studio. Only tested on VS2017.
 
 ## TODO
 
-- [ ] Shooting
+- [x] Shooting
 - [ ] Enemies
 - [ ] Sidescrolling
 - [ ] Proper jumping

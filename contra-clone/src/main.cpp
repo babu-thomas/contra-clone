@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -14,6 +15,12 @@ struct Sprite
 	bool is_moving;
 	bool in_air;
 	SDL_RendererFlip flip;
+};
+
+struct Bullet
+{
+	float x, y;
+	float dx;
 };
 
 SDL_Texture* tex_from_image(const std::string& path, SDL_Renderer *renderer);
@@ -41,7 +48,15 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	std::string bullet_path = "data/bullet.png";
+	SDL_Texture *bullet_texture = tex_from_image(bullet_path, renderer);
+	if (!bullet_texture)
+	{
+		return 1;
+	}
+
 	Sprite hero = { hero_texture, 60.0, 60.0, 0.0, 40, 50, 5, false, false, SDL_FLIP_NONE };
+	std::vector<Bullet> bullets;
 
 	bool quit = false;
 	while (!quit)
@@ -63,6 +78,9 @@ int main(int argc, char **argv)
 		bool left_pressed = keyboard_state[SDL_SCANCODE_LEFT];
 		bool right_pressed = keyboard_state[SDL_SCANCODE_RIGHT];
 		bool jump_pressed = keyboard_state[SDL_SCANCODE_UP];
+		bool shoot_pressed = keyboard_state[SDL_SCANCODE_SPACE];
+
+		unsigned int time_ms = SDL_GetTicks();
 
 		if (left_pressed)
 		{
@@ -70,7 +88,6 @@ int main(int argc, char **argv)
 			hero.x -= 3;
 			hero.is_moving = true;
 
-			unsigned int time_ms = SDL_GetTicks();
 			if (time_ms % 6 == 0)
 			{
 				hero.current_frame++;
@@ -83,7 +100,6 @@ int main(int argc, char **argv)
 			hero.x += 3;
 			hero.is_moving = true;
 
-			unsigned int time_ms = SDL_GetTicks();
 			if (time_ms % 6 == 0)
 			{
 				hero.current_frame++;
@@ -101,6 +117,23 @@ int main(int argc, char **argv)
 			hero.dy = -8;
 			hero.in_air = true;
 		}
+
+		if (shoot_pressed)
+		{
+			if (time_ms % 6 == 0 && !hero.is_moving)
+			{
+				hero.current_frame = hero.current_frame == 4 ? 5 : 4;
+			}
+			if (hero.flip == SDL_FLIP_NONE)
+			{
+				bullets.push_back({ hero.x + 35, hero.y + 20, 3 });
+			}
+			else
+			{
+				bullets.push_back({ hero.x - 1, hero.y + 20, -3 });
+			}
+		}
+
 		if (hero.in_air)
 		{
 			hero.y += hero.dy;
@@ -118,6 +151,19 @@ int main(int argc, char **argv)
 			}
 		}
 
+		for (auto i = bullets.begin(); i != bullets.end();)
+		{
+			i->x += i->dx;
+			if (i->x > 400 || i->x < -10)
+			{
+				i = bullets.erase(i);
+			}
+			else
+			{
+				i++;
+			}
+		}
+
 		// Render
 		SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 		SDL_RenderClear(renderer);
@@ -126,10 +172,15 @@ int main(int argc, char **argv)
 
 		SDL_Rect src_hero = { hero.frame_width*hero.current_frame, 0, hero.frame_width,
 			hero.frame_height };
-
 		SDL_Rect dest_hero = { (int)hero.x, (int)hero.y, hero.frame_width, hero.frame_height };
-
 		SDL_RenderCopyEx(renderer, hero.sheet, &src_hero, &dest_hero, 0, NULL, hero.flip);
+
+		for (auto& i : bullets)
+		{
+			SDL_Rect dest_bullet = { (int)i.x, (int)i.y, 8, 8 };
+			SDL_RenderCopy(renderer, bullet_texture, NULL, &dest_bullet);
+		}
+
 		SDL_RenderPresent(renderer);
 		SDL_Delay(10);
 	}
@@ -138,6 +189,7 @@ int main(int argc, char **argv)
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyTexture(bg_texture);
 	SDL_DestroyTexture(hero_texture);
+	SDL_DestroyTexture(bullet_texture);
 	SDL_Quit();
 
 	return 0;
